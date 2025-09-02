@@ -1,12 +1,75 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ post.title }} - Mi Blog{% endblock %}
+
+{% block header_content %}
+    <button class="back-btn" onclick="history.back()">←</button>
+    <span>{{ post.username }}</span>
+{% endblock %}
+
 {% block content %}
-    {{ post.username }}
-    <h1>{{ post.title }}</h1>
-    <p>{{ post.description }}</p>
-    {% if post.image  %}
-        <img src="{{ post.image.url }}" alt="{{ post.title }}">
-    {% else%}
-    <p>No image available</p>
-    {% endif %}
+    <div class="post-detail">
+        <div class="post-detail-header">
+            <!-- Sistema de votación para vista individual -->
+            <div class="vote-section">
+                <button class="vote-btn upvote">▲</button>
+                <div class="vote-count">42</div>
+                <button class="vote-btn downvote">▼</button>
+            </div>
+
+            <div class="post-detail-avatar">
+                {% if post.author.first_name %}
+                    {{ post.author.first_name.0|upper }}{{ post.author.last_name.0|upper|default:"" }}
+                {% else %}
+                    {{ post.author.username.0|upper }}
+                {% endif %}
+            </div>
+
+            <div class="post-detail-info">
+                <div class="post-detail-meta">
+                    <span class="username">
+                        {% if post.author.get_full_name %}
+                            {{ post.author.get_full_name }}
+                        {% else %}
+                            {{ post.author.username }}
+                        {% endif %}
+                    </span>
+                    <span>• @{{ post.author.username }}</span>
+                    <span>• {{ post.created_at|timesince|default:"hace tiempo" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Título del post -->
+        <h1 class="post-detail-title">{{ post.title }}</h1>
+        
+        <!-- Descripción del post -->
+        <div class="post-detail-content">
+            <p>{{ post.description }}</p>
+        </div>
+
+        <!-- Imagen del post si existe -->
+        {% if post.image %}
+            <div style="margin: 20px 0;">
+                <img src="{{ post.image.url }}" alt="{{ post.title }}" style="max-width: 100%; height: auto; border-radius: 12px; border: 1px solid #2f3336;">
+            </div>
+        {% else %}
+            <!-- Mensaje opcional si no hay imagen -->
+            <!-- <p style="color: #71767b; font-style: italic;">No image available</p> -->
+        {% endif %}
+
+        <!-- Acciones del post -->
+        <div class="post-actions" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #2f3336;">
+            <button class="action-btn">💬 12</button>
+            <button class="action-btn">🔄 8</button>
+            <button class="action-btn">❤️ 25</button>
+            <button class="action-btn">📤</button>
+        </div>
+
+        <!-- Sección de comentarios (puedes expandir esto después) -->
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #2f3336;">
+            <h3 style="margin-bottom: 20px; color: #e7e9ea;">Comentarios</h3>
+            <p style="color: #71767b;">Próximamente...</p>
+        </div>
+    </div>
 {% endblock %}

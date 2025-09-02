@@ -1,166 +1,441 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>{% block title %}Mi Blog{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #000;
+            color: #e7e9ea;
+            line-height: 1.4;
+        }
+
+        .social-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 240px 1fr 300px;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        /* Sidebar izquierda */
+        .sidebar-left {
+            position: fixed;
+            height: 100vh;
+            width: 240px;
+            padding: 20px;
+            background-color: #000;
+            border-right: 1px solid #2f3336;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #1d9bf0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 25px;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: #e7e9ea;
+        }
+
+        .nav-item:hover {
+            background-color: #1a1a1a;
+        }
+
+        .nav-item.active {
+            background-color: #1d9bf0;
+        }
+
+        /* Feed principal */
+        .main-feed {
+            margin-left: 240px;
+            border-left: 1px solid #2f3336;
+            border-right: 1px solid #2f3336;
+            min-height: 100vh;
+        }
+
+        .feed-header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 16px 20px;
+            border-bottom: 1px solid #2f3336;
+            font-weight: bold;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #e7e9ea;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Contenido principal */
+        .content-area {
+            padding: 0;
+        }
+
+        /* Estilos para posts en lista */
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            border-bottom: 1px solid #2f3336;
+            transition: background-color 0.2s;
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            padding: 16px 20px;
+        }
+
+        li:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Sistema de votación estilo Reddit */
+        .vote-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 12px;
+            padding: 8px;
+            min-width: 40px;
+        }
+
+        .vote-btn {
+            background: none;
+            border: none;
+            color: #71767b;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .vote-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .vote-btn.upvote:hover {
+            color: #ff4500;
+        }
+
+        .vote-btn.downvote:hover {
+            color: #7193ff;
+        }
+
+        .vote-count {
+            font-weight: bold;
+            font-size: 12px;
+            margin: 2px 0;
+            color: #e7e9ea;
+        }
+
+        /* Contenido del post */
+        .post-content {
+            flex: 1;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b35, #f7931e, #1d9bf0);
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #e7e9ea;
+            font-size: 14px;
+        }
+
+        .post-time {
+            color: #71767b;
+            font-size: 14px;
+        }
+
+        /* Enlaces de posts */
+        .post-link {
+            color: #e7e9ea;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.4;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .post-link:hover {
+            color: #1d9bf0;
+            text-decoration: none;
+        }
+
+        /* Enlaces generales */
+        a {
+            color: #e7e9ea;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.4;
+            display: block;
+            margin-top: 4px;
+        }
+
+        a:hover {
+            color: #1d9bf0;
+            text-decoration: none;
+        }
+
+        /* Acciones estilo Twitter */
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 15px;
+            background: none;
+            border: none;
+            color: #71767b;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .action-btn:hover {
+            background-color: rgba(29, 155, 240, 0.1);
+            color: #1d9bf0;
+        }
+
+        /* Estilos específicos para vista de post individual */
+        .post-detail {
+            padding: 20px;
+        }
+
+        .post-detail-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .post-detail-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b35, #f7931e, #1d9bf0);
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+
+        .post-detail-info {
+            flex: 1;
+        }
+
+        .post-detail-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #e7e9ea;
+        }
+
+        .post-detail-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #71767b;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .post-detail-content {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* Sidebar derecha */
+        .sidebar-right {
+            padding: 20px;
+            position: fixed;
+            right: calc((100vw - 1200px) / 2);
+            width: 300px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .trending-section {
+            background-color: #16181c;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .trending-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .trending-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #2f3336;
+        }
+
+        .trending-item:last-child {
+            border-bottom: none;
+        }
+
+        .trending-topic {
+            font-size: 14px;
+            color: #71767b;
+        }
+
+        .trending-hashtag {
+            font-weight: bold;
+            margin: 4px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .social-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar-left, .sidebar-right {
+                display: none;
+            }
+            
+            .main-feed {
+                margin-left: 0;
+                border: none;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2f3336;
+            border-radius: 3px;
+        }
+
+        hr {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lila Red</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #ffb8db;
-    }
+    <div class="social-container">
+        <!-- Sidebar Izquierda -->
+        <div class="sidebar-left">
+            <div class="logo">🚀 Mi Blog</div>
+            <a href="/" class="nav-item active">🏠 Inicio</a>
+            <div class="nav-item">🔥 Populares</div>
+            <div class="nav-item">📝 Mis Posts</div>
+            <div class="nav-item">👤 Perfil</div>
+        </div>
 
-    /* Navbar */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #bf8eff;
-      padding: 10px 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
+        <!-- Feed Principal -->
+        <div class="main-feed">
+            <div class="feed-header">
+                {% block header_content %}
+                    {% if show_back_button %}
+                        <button class="back-btn" onclick="history.back()">←</button>
+                    {% endif %}
+                    {% block header_title %}Posts Recientes{% endblock %}
+                {% endblock %}
+            </div>
 
-    .logo {
-      font-size: 26px;
-      font-weight: bold;
-      color: white;
-      letter-spacing: 1px;
-    }
+            <div class="content-area">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
 
-    /* Enlaces */
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 25px;
-      margin: 0;
-      padding: 0;
-    }
-
-    .nav-links li a {
-      text-decoration: none;
-      color: white;
-      font-weight: 500;
-      padding: 6px 10px;
-      border-radius: 8px;
-      transition: background 0.3s, transform 0.2s;
-    }
-
-    .nav-links li a:hover {
-      background-color: rgba(255,255,255,0.2);
-      transform: scale(1.1);
-    }
-
-    /* Barra de búsqueda */
-    .search-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background-color: white;
-      padding: 5px 10px;
-      border-radius: 25px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .search-bar input {
-      border: none;
-      outline: none;
-      padding: 5px;
-      border-radius: 20px;
-      width: 150px;
-    }
-
-    .search-bar button {
-      border: none;
-      background-color: #934af3;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background 0.3s, transform 0.2s;
-    }
-
-    .search-bar button:hover {
-      background-color: #dbd10d;
-      transform: scale(1.1);
-    }
-
-    /* Íconos de perfil y notificaciones */
-    .icons {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-    }
-
-    .icon {
-      width: 35px;
-      height: 35px;
-      background-color: white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: transform 0.2s;
-      font-size: 18px;
-    }
-
-    .icon:hover {
-      transform: scale(1.2);
-    }
-
-    /* Responsive simple */
-    @media (max-width: 768px) {
-      .nav-links {
-        display: none;
-      }
-      .search-bar input {
-        width: 100px;
-      }
-    }
-
-  </style>
-</head>
-<body>
-  <nav class="navbar">
-    <div class="logo">MiRed</div>
-    <ul class="nav-links">
-      <li><a href="#">Inicio</a></li>
-      <li><a href="#">Perfil</a></li>
-      <li><a href="#">Mensajes</a></li>
-      <li><a href="#">Notificaciones</a></li>
-    </ul>
-    <div class="search-bar">
-      <input type="text" placeholder="Buscar...">
-      <button>🔍</button>
+        <!-- Sidebar Derecha -->
+        <div class="sidebar-right">
+            <div class="trending-section">
+                <h3 class="trending-title">Tendencias</h3>
+                <div class="trending-item">
+                    <div class="trending-topic">Tecnología</div>
+                    <div class="trending-hashtag">#Django</div>
+                </div>
+                <div class="trending-item">
+                    <div class="trending-topic">Programación</div>
+                    <div class="trending-hashtag">#Python</div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="icons">
-      <div class="icon">🔔</div>
-      <div class="icon">👤</div>
-    </div>
-  </nav>
-
-  
-{% block content %}
-  
-{% endblock %}
-</body>
-</html>
-
-
-</html>
-
 </body>
 </html>

@@ -1,0 +1,622 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #000;
+        color: #e7e9ea;
+        line-height: 1.4;
+    }
+
+    .social-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 240px 1fr 300px;
+        gap: 20px;
+        min-height: 100vh;
+    }
+
+    /* Sidebar izquierda */
+    .sidebar-left {
+        position: fixed;
+        height: 100vh;
+        width: 240px;
+        padding: 20px;
+        background-color: #000;
+        border-right: 1px solid #2f3336;
+    }
+
+    .logo {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 30px;
+        color: #1d9bf0;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        margin-bottom: 8px;
+        border-radius: 25px;
+        transition: background-color 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        color: #e7e9ea;
+    }
+
+    .nav-item:hover {
+        background-color: #1a1a1a;
+        color: #e7e9ea;
+        text-decoration: none;
+    }
+
+    .nav-item.active {
+        background-color: #1d9bf0;
+    }
+
+    /* Feed principal */
+    .main-feed {
+        margin-left: 240px;
+        border-left: 1px solid #2f3336;
+        border-right: 1px solid #2f3336;
+        min-height: 100vh;
+    }
+
+    .feed-header {
+        position: sticky;
+        top: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(12px);
+        padding: 16px 20px;
+        border-bottom: 1px solid #2f3336;
+        font-weight: bold;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .back-btn {
+        background: none;
+        border: none;
+        color: #e7e9ea;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Post principal */
+    .main-post {
+        padding: 20px;
+        border-bottom: 1px solid #2f3336;
+    }
+
+    .post-content-detail {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    /* Sistema de votación estilo Reddit */
+    .vote-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 15px;
+        padding: 10px;
+        min-width: 50px;
+    }
+
+    .vote-btn {
+        background: none;
+        border: none;
+        color: #71767b;
+        cursor: pointer;
+        font-size: 22px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+
+    .vote-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .vote-btn.upvote:hover {
+        color: #ff4500;
+    }
+
+    .vote-btn.downvote:hover {
+        color: #7193ff;
+    }
+
+    .vote-count {
+        font-weight: bold;
+        font-size: 16px;
+        margin: 8px 0;
+        color: #e7e9ea;
+    }
+
+    /* Contenido del post */
+    .post-main {
+        flex: 1;
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #ff6b35, #f7931e, #1d9bf0);
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 16px;
+    }
+
+    .user-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .username {
+        font-weight: bold;
+        color: #e7e9ea;
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+
+    .post-time {
+        color: #71767b;
+        font-size: 15px;
+    }
+
+    .post-title {
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-bottom: 15px;
+        color: #e7e9ea;
+    }
+
+    .post-body {
+        font-size: 18px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        color: #e7e9ea;
+        white-space: pre-line;
+    }
+
+    /* Acciones del post */
+    .post-actions {
+        display: flex;
+        justify-content: space-around;
+        max-width: 500px;
+        padding: 15px 0;
+        border-top: 1px solid #2f3336;
+        border-bottom: 1px solid #2f3336;
+        margin: 20px 0;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 20px;
+        background: none;
+        border: none;
+        color: #71767b;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 16px;
+    }
+
+    .action-btn:hover {
+        background-color: rgba(29, 155, 240, 0.1);
+        color: #1d9bf0;
+    }
+
+    /* Sección de comentarios */
+    .comments-section {
+        padding: 20px;
+    }
+
+    .comments-header {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #e7e9ea;
+        border-bottom: 1px solid #2f3336;
+        padding-bottom: 10px;
+    }
+
+    .comment-form {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 30px;
+        padding: 15px;
+        border-radius: 12px;
+        background-color: #16181c;
+    }
+
+    .comment-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #ff6b35, #f7931e, #1d9bf0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .comment-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: #e7e9ea;
+        font-size: 16px;
+        resize: none;
+        outline: none;
+        min-height: 60px;
+        padding: 10px;
+    }
+
+    .comment-input::placeholder {
+        color: #71767b;
+    }
+
+    .comment-btn {
+        align-self: flex-end;
+        background-color: #1d9bf0;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .comment-btn:hover {
+        background-color: #1a8cd8;
+    }
+
+    .comment {
+        display: flex;
+        gap: 12px;
+        padding: 15px 0;
+        border-bottom: 1px solid #2f3336;
+    }
+
+    .comment:last-child {
+        border-bottom: none;
+    }
+
+    .comment-content {
+        flex: 1;
+    }
+
+    .comment-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .comment-username {
+        font-weight: bold;
+        color: #e7e9ea;
+    }
+
+    .comment-time {
+        color: #71767b;
+        font-size: 14px;
+    }
+
+    .comment-text {
+        color: #e7e9ea;
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+
+    .comment-actions {
+        display: flex;
+        gap: 15px;
+    }
+
+    .comment-action {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: none;
+        border: none;
+        color: #71767b;
+        cursor: pointer;
+        font-size: 14px;
+        transition: color 0.2s;
+    }
+
+    .comment-action:hover {
+        color: #1d9bf0;
+    }
+
+    /* Sidebar derecha */
+    .sidebar-right {
+        padding: 20px;
+        position: fixed;
+        right: calc((100vw - 1200px) / 2);
+        width: 300px;
+        height: 100vh;
+        overflow-y: auto;
+    }
+
+    .trending-section {
+        background-color: #16181c;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .trending-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 16px;
+    }
+
+    .trending-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #2f3336;
+    }
+
+    .trending-item:last-child {
+        border-bottom: none;
+    }
+
+    .trending-topic {
+        font-size: 14px;
+        color: #71767b;
+    }
+
+    .trending-hashtag {
+        font-weight: bold;
+        margin: 4px 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .social-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .sidebar-left, .sidebar-right {
+            display: none;
+        }
+        
+        .main-feed {
+            margin-left: 0;
+            border: none;
+        }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #000;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #2f3336;
+        border-radius: 3px;
+    }
+</style>
+
+<div class="social-container">
+    <!-- Sidebar Izquierda -->
+    <div class="sidebar-left">
+        <div class="logo">🚀 Mi Blog</div>
+        <a href="/" class="nav-item">🏠 Inicio</a>
+        <div class="nav-item">🔥 Populares</div>
+        <div class="nav-item">📝 Mis Posts</div>
+        <div class="nav-item">👤 Perfil</div>
+    </div>
+
+    <!-- Feed Principal -->
+    <div class="main-feed">
+        <div class="feed-header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <span>Post</span>
+        </div>
+
+        <!-- Post Principal -->
+        <div class="main-post">
+            <div class="post-content-detail">
+                <!-- Votación estilo Reddit -->
+                <div class="vote-section">
+                    <button class="vote-btn upvote">▲</button>
+                    <div class="vote-count">{{ object.votes|default:42 }}</div>
+                    <button class="vote-btn downvote">▼</button>
+                </div>
+
+                <!-- Contenido del post -->
+                <div class="post-main">
+                    <div class="post-header">
+                        <div class="user-avatar">
+                            {% if object.author.first_name %}
+                                {{ object.author.first_name.0|upper }}{{ object.author.last_name.0|upper|default:"" }}
+                            {% else %}
+                                {{ object.author.username.0|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="user-info">
+                            <div class="username">
+                                {% if object.author.get_full_name %}
+                                    {{ object.author.get_full_name }}
+                                {% else %}
+                                    {{ object.author.username }}
+                                {% endif %}
+                            </div>
+                            <div class="post-time">@{{ object.author.username }} • {{ object.created_at|timesince|default:"hace tiempo" }}</div>
+                        </div>
+                    </div>
+
+                    <h1 class="post-title">{{ object.title }}</h1>
+                    
+                    {% if object.content %}
+                        <div class="post-body">{{ object.content }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Acciones del post -->
+            <div class="post-actions">
+                <button class="action-btn">💬 {{ object.comments.count|default:12 }}</button>
+                <button class="action-btn">🔄 {{ object.shares|default:8 }}</button>
+                <button class="action-btn">❤️ {{ object.likes|default:25 }}</button>
+                <button class="action-btn">📤 Compartir</button>
+            </div>
+        </div>
+
+        <!-- Sección de Comentarios -->
+        <div class="comments-section">
+            <div class="comments-header">💬 Comentarios</div>
+            
+            <!-- Formulario para nuevo comentario -->
+            <div class="comment-form">
+                <div class="comment-avatar">U</div>
+                <textarea class="comment-input" placeholder="Escribe tu comentario..."></textarea>
+                <button class="comment-btn">Comentar</button>
+            </div>
+
+            <!-- Lista de comentarios -->
+            <div class="comment">
+                <div class="comment-avatar">JD</div>
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <span class="comment-username">Juan Developer</span>
+                        <span class="comment-time">hace 1h</span>
+                    </div>
+                    <div class="comment-text">
+                        ¡Excelente post! Me ayudó mucho a entender este concepto. Gracias por compartir 👍
+                    </div>
+                    <div class="comment-actions">
+                        <button class="comment-action">❤️ 5</button>
+                        <button class="comment-action">💬 Responder</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comment">
+                <div class="comment-avatar">MC</div>
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <span class="comment-username">María Código</span>
+                        <span class="comment-time">hace 3h</span>
+                    </div>
+                    <div class="comment-text">
+                        Me gustaría ver más contenido como este. ¿Podrías hacer una parte 2?
+                    </div>
+                    <div class="comment-actions">
+                        <button class="comment-action">❤️ 2</button>
+                        <button class="comment-action">💬 Responder</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Derecha -->
+    <div class="sidebar-right">
+        <div class="trending-section">
+            <h3 class="trending-title">Relacionados</h3>
+            <div class="trending-item">
+                <div class="trending-topic">Por el mismo autor</div>
+                <div class="trending-hashtag">Ver más posts</div>
+            </div>
+            <div class="trending-item">
+                <div class="trending-topic">Temas similares</div>
+                <div class="trending-hashtag">#Django #Python</div>
+            </div>
+        </div>
+
+        <div class="trending-section">
+            <h3 class="trending-title">Tendencias</h3>
+            <div class="trending-item">
+                <div class="trending-topic">Tecnología</div>
+                <div class="trending-hashtag">#Django</div>
+            </div>
+            <div class="trending-item">
+                <div class="trending-topic">Programación</div>
+                <div class="trending-hashtag">#Python</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Funcionalidad para los botones de voto
+    document.querySelectorAll('.vote-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const isUpvote = this.classList.contains('upvote');
+            const voteSection = this.parentElement;
+            const otherButton = isUpvote ? 
+                voteSection.querySelector('.downvote') : 
+                voteSection.querySelector('.upvote');
+            const countElement = voteSection.querySelector('.vote-count');
+            let currentCount = parseInt(countElement.textContent);
+            
+            // Toggle del botón actual
+            if (this.classList.contains('active')) {
+                this.classList.remove('active');
+                currentCount += isUpvote ? -1 : 1;
+            } else {
+                this.classList.add('active');
+                otherButton.classList.remove('active');
+                currentCount += isUpvote ? 1 : -1;
+            }
+            
+            countElement.textContent = currentCount;
+        });
+    });
+
+    // Funcionalidad para comentarios
+    document.querySelector('.comment-btn').addEventListener('click', function() {
+        const textarea = document.querySelector('.comment-input');
+        if (textarea.value.trim()) {
+            alert('¡Comentario agregado! (Esta es solo una demo)');
+            textarea.value = '';
+        }
+    });
+</script>
+
+{% endblock %}

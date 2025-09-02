@@ -1,13 +1,50 @@
 {% extends 'base.html' %}
 
-{% block content %}
- {%for post in object_list%}
-    <ul>
-        <a href="{% url 'post_detail' post.pk %}">
-        <li>{{ post.title }}</li>
-    </ul>
-    <hr>
-    {% endfor %}
- {% endblock %}
+{% block title %}Inicio - Mi Blog{% endblock %}
 
- <a href="{% url 'post_detail' post.pk%}"></a>
+{% block content %}
+    {%for post in object_list%}
+        <ul>
+            <li>
+                <!-- Votación estilo Reddit -->
+                <div class="vote-section">
+                    <button class="vote-btn upvote">▲</button>
+                    <div class="vote-count">42</div>
+                    <button class="vote-btn downvote">▼</button>
+                </div>
+
+                <!-- Contenido del post -->
+                <div class="post-content">
+                    <div class="post-header">
+                        <div class="user-avatar">
+                            {% if post.author.first_name %}
+                                {{ post.author.first_name.0|upper }}{{ post.author.last_name.0|upper|default:"" }}
+                            {% else %}
+                                {{ post.author.username.0|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="user-info">
+                            <span class="username">
+                                {% if post.author.get_full_name %}
+                                    {{ post.author.get_full_name }}
+                                {% else %}
+                                    {{ post.author.username }}
+                                {% endif %}
+                            </span>
+                            <span class="post-time">• @{{ post.author.username }} • {{ post.created_at|timesince|default:"hace tiempo" }}</span>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'post_detail' post.pk %}" class="post-link">{{ post.title }}</a>
+
+                    <div class="post-actions">
+                        <button class="action-btn">💬 12</button>
+                        <button class="action-btn">🔄 8</button>
+                        <button class="action-btn">❤️ 25</button>
+                        <button class="action-btn">📤</button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    {% endfor %}
+{% endblock %}

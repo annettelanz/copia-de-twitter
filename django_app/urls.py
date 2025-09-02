@@ -5,9 +5,8 @@ from .views import *
 
 urlpatterns = [
     path('', PostView.as_view(), name='post'),
-    path('detail/<int:pk>/', PostDetailView.as_view (), name='post_detail' ),
+    path('detail/<int:pk>', PostDetailView.as_view (), name='post_detail' ),
     ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL,
-                        document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
